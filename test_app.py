@@ -1,5 +1,5 @@
 import pytest, os
-from project import get_cards_from_csv, index, autocomplete, app, log_selected_options
+from application import get_cards_from_csv, index, autocomplete, application, log_selected_options
 
 
 @pytest.fixture
@@ -17,9 +17,7 @@ def test_get_cards_from_csv():
     cards = get_cards_from_csv(csv_filename)
 
     assert cards
-
     assert len(cards) > 27045
-
     assert "Annul" in cards
     assert "Counterspell" in cards
     assert "A-Base Camp" in cards
