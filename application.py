@@ -4,7 +4,7 @@ from openai import OpenAI
 from config import api_key
 
 
-app = Flask(__name__)
+application = Flask(__name__)
 
 
 def get_cards_from_csv(csv_filename):
@@ -15,12 +15,12 @@ def get_cards_from_csv(csv_filename):
             cards.append(row['Card Name'])
     return cards
 
-@app.route('/')
+@application.route('/')
 def index():
     cards = []
     return render_template('index.html', cards=cards)
 
-@app.route('/autocomplete')
+@application.route('/autocomplete')
 def autocomplete():
     query = request.args.get('q', '').lower()
     csv_filename = 'allcardsv3.csv'
@@ -28,7 +28,7 @@ def autocomplete():
     suggestions = [card for card in cards if query in card.lower()]
     return jsonify(suggestions)
 
-@app.route('/log_selected_options', methods=['POST'])
+@application.route('/log_selected_options', methods=['POST'])
 def log_selected_options():
     data = request.get_json()
     selectedOptions = data.get('selectedOptions')
@@ -36,7 +36,7 @@ def log_selected_options():
     return '', 204
 
 
-@app.route('/send_gpt', methods=['POST'])
+@application.route('/send_gpt', methods=['POST'])
 def send_gpt():
     data = request.get_json()
     selectedOptions = data.get('selectedOptions', [])
@@ -59,12 +59,7 @@ def send_gpt():
         return jsonify({"recommendations": []})  # Empty list as a default
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8004)
+    application.run(debug=True, port=8004)
 
 
 
-# def main():
-#     app.run(debug=True, port=8004)
-
-# if __name__ == '__main__':
-#     main()
