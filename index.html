@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwampGPT</title>
+    <!-- Including Font Awesome for awesomeness and goog-looking effects-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+
+        body {
+            background-image: url('https://storage.cloud.google.com/imagesmtg/synthwave.png?authuser=3');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+            padding: 140px; /* Add padding to the whole website body, although this wont work for elements like the options container or recommendations frame since they are set to a fixed position */
+        }
+        .selected-options-container {
+            background-color: rgba(240, 240, 230, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 160px;
+            width: 300px;
+            position: fixed;
+            right: 140px;
+            top: 100px;
+            font-family: 'Roboto Mono', monospace;
+        }
+        .selected-options-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .selected-options-footer {
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        #loader-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loader {
+            font-size: 3em;
+        }
+        #recommendations-frame {
+            background-color: rgba(255, 255, 0, 0.4);
+            padding: 20px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50%;
+            text-align: center;
+            font-family: 'Roboto Mono', monospace;
+            border-radius: 10px;
+        }
+
+        #recommendations-frame h2 {
+            margin-bottom: 15px;
+            color: #333; /* Dark text color */
+        }
+        #get-recommendation-button:disabled {
+            opacity: 0.5 !important; /* look and feel of the GetReco button when it is disabled to give the user a cue (they need to add or delete at least one card to re-enable it) */
+            cursor: not-allowed;
+            background-color: grey;
+        }
+    </style>
+</head>
+<body>
+    <!-- This is the Loader (from Font Awesome) Container -->
+    <div id="loader-container">
+        <div class="loader">
+            <i class="fas fa-spinner fa-spin"></i>
+        </div>
+    </div>
+    <!-- This is the Title of the page -->
+    <div>
+        <h1 style="color: lightgray; font-family: 'Roboto Mono', monospace;">Welcome to swampGPT - use AI to get ideas for your decks</h1>
+    </div>
+
+    <input type="search" id="autocomplete-input" placeholder="Add your cards" style="margin-top: 20px; width: 300px; padding: 5px; font-size: 16px;">
+
+    <div class="selected-options-container">
+        <div class="selected-options-title">Selected Cards</div>
+        <ul id="selected-options-list" style="list-style-type: none; padding: 0;">
+            <!-- The selected options will be listed here -->
+        </ul>
+        <div class="selected-options-footer">Click on any card to remove</div>
+        <button id="get-recommendation-button" style="margin-top: 10px;">Get Recommendations</button>
+    </div>
+
+    <ul id="suggestions-list" style="list-style-type: none; padding: 0; margin-top: 5px; color: #FFFFFF; font-family: 'Roboto Mono', monospace;">
+    </ul>
+
+    <!-- Behold the recommendations-frame div -->
+    <div id="recommendations-frame" class="electric-recommendations">
+        <h2>Recommendations</h2>
+        <div id="recommendations-list"></div>
+    </div>
+
+
+
+    <script>
+        const input = document.getElementById('autocomplete-input');
+        const selectedOptionsList = document.getElementById('selected-options-list');
+        const suggestionsList = document.getElementById('suggestions-list');
+        const getRecommendationButton = document.getElementById('get-recommendation-button');
+        const selectedOptions = [];
+        const loaderContainer = document.getElementById('loader-container');
+        let buttonClicked = false; // Keeps track of whether the GetReco button has been clicked
+
+        function showLoader() {
+            loaderContainer.style.display = 'flex';
+        }
+
+        function hideLoader() {
+            loaderContainer.style.display = 'none';
+        }
+
+        input.addEventListener('input', function () {
+            const query = input.value.trim();
+            if (query) {
+                fetch(`/autocomplete?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        suggestionsList.innerHTML = '';
+                        data.forEach(suggestion => {
+                            const li = document.createElement('li');
+                            li.textContent = suggestion;
+                            li.style.cursor = 'pointer';
+                            li.addEventListener('click', function () {
+                                addSelectedOption(suggestion);
+                                input.value = '';
+                                suggestionsList.innerHTML = '';
+                            });
+                            suggestionsList.appendChild(li);
+                        });
+                    });
+            } else {
+                suggestionsList.innerHTML = '';
+            }
+        });
+
+        function addSelectedOption(option) {
+            if (!selectedOptions.includes(option)) {
+                selectedOptions.push(option);
+                renderSelectedOptions();
+                resetButtonState(); // restes the GetReco button
+            }
+        }
+
+        function removeSelectedOption(option) {
+            const index = selectedOptions.indexOf(option);
+            if (index !== -1) {
+                selectedOptions.splice(index, 1);
+                renderSelectedOptions();
+                resetButtonState(); // restes the GetReco button
+            }
+        }
+
+        function resetButtonState() {
+            buttonClicked = false;  // reset the buttonClicked flag
+            getRecommendationButton.disabled = false;  // Re-enable the getreco button
+            getRecommendationButton.classList.remove('disabled'); // remvoe the disabled class to give a visual cue to the user
+
+        }
+
+        function renderSelectedOptions() {
+            selectedOptionsList.innerHTML = '';
+            selectedOptions.forEach(option => {
+                const li = document.createElement('li');
+                li.textContent = option;
+                li.style.margin = '5px';
+                li.style.padding = '5px';
+                li.style.backgroundColor = 'lightgray';
+                li.style.color = 'black'; // Set font color to black
+                li.style.borderRadius = '5px';
+                li.style.cursor = 'pointer';
+                li.addEventListener('click', function () {
+                    removeSelectedOption(option);
+                });
+                selectedOptionsList.appendChild(li);
+            });
+        }
+
+        getRecommendationButton.addEventListener('click', function () {
+            if (!buttonClicked) {  // Check if the button has not been clicked
+            buttonClicked = true;  // Set the buttonClicked flag to true
+            getRecommendationButton.disabled = true;  // Disable the button
+            getRecommendationButton.classList.add('disabled'); // and also, add the disabled class to give a visual cue
+            showLoader(); // to show the loader before fetching recommendations
+            // console.log("Button clicked"); // Print a message to the console (deprecated as not needed)
+            // console.log(selectedOptions); // Print the selected cards to the console (deprecated as not needed)
+
+        fetch('/send_gpt', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ selectedOptions }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            const recommendationsFrame = document.getElementById('recommendations-frame');
+            const recommendationsList = document.getElementById('recommendations-list');
+
+            recommendationsList.innerHTML = ''; // Clear previous content
+
+            let recommendations;
+
+            // Check for "recommendations" word in the response data back from chatgpt as sometimes it is there (apparently random)
+            if (data && data.recommendations && data.recommendations.cards) {
+                recommendations = data.recommendations.cards;
+            }
+
+            if (recommendations && Array.isArray(recommendations)) {
+                // If recommendations is an array, display each recommendation
+                recommendations.forEach(recommendation => {
+                    const li = document.createElement('li');
+                    li.textContent = recommendation;
+                    recommendationsList.appendChild(li);
+                });
+            } else {
+                // If there are no recommendations, display a default message
+                recommendationsList.innerText = 'No recommendations available. Please check again in a few minutes';
+            }
+
+            // Show the recommendations-frame
+            recommendationsFrame.style.display = 'block';
+        })
+        .catch(error => console.error('Error fetching recommendations:', error))
+        .finally(() => {
+            hideLoader(); // Hide the loader after receiving the response or in case of an error
+            getRecommendationButton.disabled = false; //Re-enable the GetReco button
+        });
+        }
+    });
+
+    </script>
+</body>
+</html>
