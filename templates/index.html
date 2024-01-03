@@ -7,26 +7,31 @@
     <title>SwampGPT</title>
     <!-- Including Font Awesome for awesomeness and goog-looking effects-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Adding Bootstrap-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
 
     <style>
 
         body {
-            background-image: url('https://storage.cloud.google.com/imagesmtg/synthwave.png?authuser=3');
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            background-size: cover;
-            padding: 140px; /* Add padding to the whole website body, although this wont work for elements like the options container or recommendations frame since they are set to a fixed position */
-        }
-        .selected-options-container {
+                background-image: url('https://i.imgur.com/YSyN976.png');
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                background-size: cover;
+                padding: 40px;
+                margin: 0;
+                box-sizing: border-box; /* Ensure padding doesn't increase the width of the body */
+            }
+            .selected-options-container {
             background-color: rgba(240, 240, 230, 0.8);
             color: white;
             padding: 10px;
             border-radius: 5px;
             margin-top: 160px;
-            width: 300px;
-            position: fixed;
-            right: 140px;
-            top: 100px;
+            width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 20px; /* Add margin at the bottom */
             font-family: 'Roboto Mono', monospace;
         }
         .selected-options-title {
@@ -49,26 +54,52 @@
             align-items: center;
             z-index: 1000;
         }
-
         .loader {
             font-size: 3em;
         }
+        #get-recommendation-button {
+            width: 100%; /* Making the button full-width */
+            margin-top: 10px;
+            padding: 10px 20px; /* Adjust padding for better appearance */
+            font-size: 18px; /* Increase font size for better readability */
+            border: none; /* Remove default button border */
+            border-radius: 5px; /* Rounded corners for a modern look */
+            transition: all 0.3s ease; /* Adding transition for smooth effect */
+        }
+        #get-recommendation-button:hover {
+           opacity: 0.8; /* Reduce opacity on hover for interactive feel */
+        }
+        /* Styling for primary button color (I could change the colors as needed) */
+        .btn-primary {
+            background-color: #007bff; /* Blue color - you can change this */
+            color: #ffffff; /* White text for contrast */
+        }
+        .btn-primary:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+            color: #ffffff; /* White text on hover */
+        }
         #recommendations-frame {
-            background-color: rgba(255, 255, 0, 0.4);
+            background-color: rgba(255, 255, 0, 0.6);
             padding: 20px;
-            position: fixed;
-            top: 50%;
+            /* position: fixed; */
+            /* top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            width: 50%;
+            transform: translate(-50%, -50%); */
+            width: 90%;
+            margin-left: auto;
+            margin-right: auto;
             text-align: center;
             font-family: 'Roboto Mono', monospace;
             border-radius: 10px;
+            margin-top: 20px; /* Add margin at the top */
         }
-
         #recommendations-frame h2 {
             margin-bottom: 15px;
             color: #333; /* Dark text color */
+            font-size: 18px;
+        }
+        #recommendations-list {
+            font-size: 16px;
         }
         #get-recommendation-button:disabled {
             opacity: 0.5 !important; /* look and feel of the GetReco button when it is disabled to give the user a cue (they need to add or delete at least one card to re-enable it) */
@@ -76,8 +107,10 @@
             background-color: grey;
         }
     </style>
+<!-- Plausible -->
+<script defer data-domain="swampgpt.pythonanywhere.com" src="https://plausible.io/js/script.js"></script>
 </head>
-<body>
+<body class="container-fluid"> <!-- Using Bootstrap container-fluid -->
     <!-- This is the Loader (from Font Awesome) Container -->
     <div id="loader-container">
         <div class="loader">
@@ -86,10 +119,13 @@
     </div>
     <!-- This is the Title of the page -->
     <div>
-        <h1 style="color: lightgray; font-family: 'Roboto Mono', monospace;">Welcome to swampGPT - use AI to get ideas for your decks</h1>
+        <h1 style="color: lightgray; font-family: 'Roboto Mono', monospace;">Welcome to swampGPT - use AI to get ideas for your MTG decks</h1>
     </div>
-
-    <input type="search" id="autocomplete-input" placeholder="Add your cards" style="margin-top: 20px; width: 300px; padding: 5px; font-size: 16px;">
+    <!-- Search Bar -->
+    <input type="search" id="autocomplete-input" class="form-control mt-4" placeholder="Add your cards">
+    <!-- Suggestions list -->
+    <ul id="suggestions-list" style="list-style-type: none; padding: 0; margin-top: 5px; color: #FFFFFF; font-family: 'Roboto Mono', monospace;">
+    </ul>
 
     <div class="selected-options-container">
         <div class="selected-options-title">Selected Cards</div>
@@ -97,20 +133,26 @@
             <!-- The selected options will be listed here -->
         </ul>
         <div class="selected-options-footer">Click on any card to remove</div>
-        <button id="get-recommendation-button" style="margin-top: 10px;">Get Recommendations</button>
+        <button id="get-recommendation-button" class="btn btn-primary mt-2">Get Recommendations</button>
+
+
     </div>
 
-    <ul id="suggestions-list" style="list-style-type: none; padding: 0; margin-top: 5px; color: #FFFFFF; font-family: 'Roboto Mono', monospace;">
-    </ul>
 
     <!-- Behold the recommendations-frame div -->
     <div id="recommendations-frame" class="electric-recommendations">
         <h2>Recommendations</h2>
         <div id="recommendations-list"></div>
     </div>
-
-
-
+    <div class="row justify-content-center">
+        <div class="col-12 text-center">
+            <a href="mailto:swampgpt@gmail.com" style="color: white; text-decoration: none;">swampgpt@gmail.com</a>
+        </div>
+    </div>
+    <!-- Bootstrap scripts -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script>
         const input = document.getElementById('autocomplete-input');
         const selectedOptionsList = document.getElementById('selected-options-list');
@@ -149,6 +191,16 @@
                     });
             } else {
                 suggestionsList.innerHTML = '';
+            }
+              // New code for disabling button and showing warning
+            if (selectedOptions.length < 3 || selectedOptions.length > 10) {
+                getRecommendationButton.disabled = true;
+                getRecommendationButton.classList.add('disabled');
+                getRecommendationButton.setAttribute('title', 'Please select between 3 and 10 cards for recommendations.');
+            } else {
+                getRecommendationButton.disabled = false;
+                getRecommendationButton.classList.remove('disabled');
+                getRecommendationButton.removeAttribute('title');
             }
         });
 
@@ -195,55 +247,40 @@
         }
 
         getRecommendationButton.addEventListener('click', function () {
-            if (!buttonClicked) {  // Check if the button has not been clicked
-            buttonClicked = true;  // Set the buttonClicked flag to true
-            getRecommendationButton.disabled = true;  // Disable the button
-            getRecommendationButton.classList.add('disabled'); // and also, add the disabled class to give a visual cue
-            showLoader(); // to show the loader before fetching recommendations
-            // console.log("Button clicked"); // Print a message to the console (deprecated as not needed)
-            // console.log(selectedOptions); // Print the selected cards to the console (deprecated as not needed)
+        if (!buttonClicked && selectedOptions.length >= 3 && selectedOptions.length <= 10) {
+            buttonClicked = true;
+            getRecommendationButton.disabled = true;
+            getRecommendationButton.classList.add('disabled');
+            showLoader();
 
-        fetch('/send_gpt', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ selectedOptions }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            const recommendationsFrame = document.getElementById('recommendations-frame');
-            const recommendationsList = document.getElementById('recommendations-list');
-
-            recommendationsList.innerHTML = ''; // Clear previous content
-
-            let recommendations;
-
-            // Check for "recommendations" word in the response data back from chatgpt as sometimes it is there (apparently random)
-            if (data && data.recommendations && data.recommendations.cards) {
-                recommendations = data.recommendations.cards;
-            }
-
-            if (recommendations && Array.isArray(recommendations)) {
-                // If recommendations is an array, display each recommendation
-                recommendations.forEach(recommendation => {
-                    const li = document.createElement('li');
-                    li.textContent = recommendation;
-                    recommendationsList.appendChild(li);
-                });
-            } else {
-                // If there are no recommendations, display a default message
-                recommendationsList.innerText = 'No recommendations available. Please check again in a few minutes';
-            }
-
-            // Show the recommendations-frame
-            recommendationsFrame.style.display = 'block';
-        })
-        .catch(error => console.error('Error fetching recommendations:', error))
-        .finally(() => {
-            hideLoader(); // Hide the loader after receiving the response or in case of an error
-            getRecommendationButton.disabled = false; //Re-enable the GetReco button
-        });
+            fetch('/send_gpt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ selectedOptions }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok.');
+                }
+                return response.text(); // Receive response as a string
+            })
+            .then(data => {
+                const recommendationsList = document.getElementById('recommendations-list');
+                recommendationsList.innerText = data; // Display the received data directly as text
+                recommendationsList.style.display = 'block'; // Ensure the recommendations are visible
+            })
+            .catch(error => {
+                console.error('Error fetching recommendations:', error);
+                // Handle errors here
+            })
+            .finally(() => {
+                hideLoader();
+                getRecommendationButton.disabled = false;
+            });
+        } else {
+        alert('Please select between 3 and 10 cards for recommendations.'); // Show an alert for invalid selection
         }
     });
 
