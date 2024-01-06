@@ -17,8 +17,7 @@ jobs:
 
       - name: Run Python Script
         run: |
-          pip install requests
-          pip install flask
+          pip install -r requirements.txt
           python application.py
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}  # Set the environment variable here
