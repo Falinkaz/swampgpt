@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  api_key: ${{secrets.OPENAI_API_KEY}}
+  OPENAI_API_KEY: ${{secrets.OPENAI_API_KEY}}  # Change 'api_key' to 'OPENAI_API_KEY'
 
 jobs:
   run-python:
@@ -22,5 +22,3 @@ jobs:
         run: |
           pip install requests
           python application.py
-    
-  
