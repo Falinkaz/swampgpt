@@ -160,3 +160,4 @@ cython_debug/
 #.idea/
 #Added by Rob
 config.py
+.env

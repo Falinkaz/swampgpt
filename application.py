@@ -1,11 +1,12 @@
-import csv, openai, json
-from flask import Flask, render_template, request, jsonify
+import csv, json, os
+from flask import Flask, render_template, request, jsonify, session
 from openai import OpenAI
-from config import api_key
 
 
 application = Flask(__name__)
-
+API_KEY = os.getenv('OPENAI_API_KEY')
+if not API_KEY:
+    raise ValueError("OPENAI_API_KEY is not set in the environment variables")
 
 def get_cards_from_csv(csv_filename):
     cards = []
@@ -35,28 +36,51 @@ def log_selected_options():
     print("selectedOptions:", selectedOptions)
     return '', 204
 
+@application.route('/store_format', methods=['POST'])
+def store_format():
+    data = request.get_json()
+    session['format'] = data.get('format')
+    return '', 204  # No content response
 
 @application.route('/send_gpt', methods=['POST'])
 def send_gpt():
     data = request.get_json()
     selectedOptions = data.get('selectedOptions', [])
-    client = OpenAI(api_key=api_key)
-    completion = client.chat.completions.create(
-    model="gpt-3.5-turbo",
-    messages=[
-        {"role": "system", "content": "Do not include any explanations, only provide an RFC8259 compliant JSON response following a dict class format without deviation. Always use "'cards'" as the value for the dict key, and fill out each value with either a card name, or a "'substitute X with Y'" statement You are a gen-Z Magic The Gathering player. Your mission is to provide a list of cards that should accompany a player's deck based on the cards that they already have in theirs. In the case that a card should be substituted by another card, you will mention: 'Substitute X wqith Y'. If not, only mention the new card that should be added. Do not include card commentary (except if it is a card that should substitute an existing one in the player's deck). Stick to a list of cards (and the substitute comentary if applicable) and format it as a python list. For each card that was provided by the user as input, analyze all existing MTG cards and ONLY in case there is a card that either has a lower mana cost or an added playing value (as long as the mana value is the same or less than that of the substituted card), propose the better card as a substitute in all cases. You should never recommend a card that has already been provided as part of an existing deck. Consider the most recent MTG expansions by surfing the web. NEVER RECOMMEND TO SUBSTITUTE A CARD WITH ANOTHER THAT HAS A HIGHER MANA COST"},
-        {"role": "user", "content": "The player currently has in their deck: " + str(selectedOptions)}
-    ]
+    selectedFormat = session.get('format', 'Default')  # Retrieve the selected format from the session
+    client = OpenAI(api_key=API_KEY)
+    thread = client.beta.threads.create()
+
+    messages = [{"role": "user", "content": "Provide recommendations for" + str(selectedFormat) + " format" + "The user has in their deck (may or may not be a complete deck):"}]
+    for card in selectedOptions:
+        messages[0]["content"] += f' {card},'  # Appending each card to the content
+
+    run = client.beta.threads.create_and_run(
+    assistant_id="asst_L87PSj1oIRz5XIzBYkXA0fQJ",
+    thread={"messages": messages}
     )
-    content = completion.choices[0].message.content
+
+
+    run_status = client.beta.threads.runs.retrieve(
+    thread_id=(run.thread_id),
+    run_id=(run.id)
+    )
+
+
+    response_json = None  # Initialize response variable outside the loop
+    while run_status.status != 'completed': # Poll for completion
+        time.sleep(5)  # Poll every 5 seconds
+        run_status = client.beta.threads.runs.retrieve(thread_id=run.thread_id, run_id=run.id)
     try:
-        json_response = json.loads(content)
-        print(json_response)
-        print(type(json_response))
-        return jsonify({"recommendations": json_response})
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON: {e}")
-        return jsonify({"recommendations": []})  # Empty list as a default
+        thread_messages = client.beta.threads.messages.list(run.thread_id)
+        response = (thread_messages.data[0].content[0].text.value)
+    except Exception as e:
+        return("error: Invalid response")  # Return a generic error response
+
+    if thread_messages:
+        print(str(response))
+        print(type((str(response))))
+        return(str(response))  # Return the cards outside the try-except block
+        
 
 if __name__ == '__main__':
     application.run(debug=True, port=8004)

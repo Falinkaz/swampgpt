@@ -19,7 +19,9 @@
                 background-attachment: fixed;
                 background-size: cover;
                 padding: 40px;
-                margin: 0;
+                margin: 20px;
+                margin-left: 30px;
+                margin-right: 30px;
                 box-sizing: border-box; /* Ensure padding doesn't increase the width of the body */
             }
             .selected-options-container {
@@ -78,6 +80,21 @@
             background-color: #0056b3; /* Darker blue on hover */
             color: #ffffff; /* White text on hover */
         }
+        .format {
+            border: 1px solid #000;
+            padding: 10px;
+            margin: 20px;
+            cursor: pointer;
+            background-color: #FFA500; /* Bright orange background */
+            color: #FFFFFF; /* White text */
+            text-align: center; /* Center the text */
+            flex: 1; /* Make all formats equal in size */
+        }
+
+        .format.highlighted {
+            background-color: #00ff00; /* Electric green background */
+            color: #000000; /* Black text */
+        }
         #recommendations-frame {
             background-color: rgba(255, 255, 0, 0.6);
             padding: 20px;
@@ -119,25 +136,65 @@
     </div>
     <!-- This is the Title of the page -->
     <div>
-        <h1 style="color: lightgray; font-family: 'Roboto Mono', monospace;">Welcome to swampGPT - use AI to get ideas for your MTG decks</h1>
+        <h1 style="color: lightgray; font-family: 'Roboto Mono', monospace; margin: 30px">Welcome to swampGPT - use AI to get ideas for your MTG decks</h1>
     </div>
     <!-- Search Bar -->
-    <input type="search" id="autocomplete-input" class="form-control mt-4" placeholder="Add your cards">
-    <!-- Suggestions list -->
-    <ul id="suggestions-list" style="list-style-type: none; padding: 0; margin-top: 5px; color: #FFFFFF; font-family: 'Roboto Mono', monospace;">
-    </ul>
+<div style="margin: 30px;">
+    <input type="search" id="autocomplete-input" class="form-control mt-4" placeholder="Add your cards" style="flex-grow: 1; margin-right: 20px;">
+</div>
 
+<style>
+@media (min-width: 768px) {
+    #autocomplete-input {
+        width: auto;
+        margin-right: 20px;
+    }
+    #format {
+        width: 250px;
+        margin-top: 0;
+    }
+    #formats {
+        display: flex;
+        flex-wrap: wrap;
+    }
+}
+</style>
+<!-- Suggestions list -->
+<div style="position: relative; margin: 30px;">
+<ul id="suggestions-list" style="list-style-type: none; padding: 0; margin-top: 5px; color: #FFFFFF; font-family: 'Roboto Mono', monospace;">
+</ul>
+</div>
+<!-- The frames for the formats -->
+<div id="formats">
+    <div class="format">ANY</div>
+    <div class="format">COMMANDER</div>
+    <div class="format">DUEL</div>
+    <div class="format">EXPLORER</div>
+    <div class="format">GLADIATOR</div>
+    <div class="format">HISTORIC</div>
+    <div class="format">HISTORICBRAWL</div>
+    <div class="format">LEGACY</div>
+    <div class="format">MODERN</div>
+    <div class="format">OATHBREAKER</div>
+    <div class="format">PAUPER</div>
+    <div class="format">PAUPERCOMMANDER</div>
+    <div class="format">PENNY</div>
+    <div class="format">PIONEER</div>
+    <div class="format">PREDH</div>
+    <div class="format">PREMODERN</div>
+    <div class="format">VINTAGE</div>
+    <!-- Add more formats as needed -->
+</div>
+<!-- The selected options will be listed here -->
     <div class="selected-options-container">
         <div class="selected-options-title">Selected Cards</div>
         <ul id="selected-options-list" style="list-style-type: none; padding: 0;">
-            <!-- The selected options will be listed here -->
         </ul>
         <div class="selected-options-footer">Click on any card to remove</div>
         <button id="get-recommendation-button" class="btn btn-primary mt-2">Get Recommendations</button>
 
 
     </div>
-
 
     <!-- Behold the recommendations-frame div -->
     <div id="recommendations-frame" class="electric-recommendations">
@@ -177,7 +234,7 @@
                     .then(response => response.json())
                     .then(data => {
                         suggestionsList.innerHTML = '';
-                        data.forEach(suggestion => {
+                        data.slice(0, 4).forEach(suggestion => { // Limit the suggestions to 4
                             const li = document.createElement('li');
                             li.textContent = suggestion;
                             li.style.cursor = 'pointer';
@@ -217,7 +274,7 @@
             if (index !== -1) {
                 selectedOptions.splice(index, 1);
                 renderSelectedOptions();
-                resetButtonState(); // restes the GetReco button
+                resetButtonState(); // resets the GetReco button
             }
         }
 
@@ -283,6 +340,30 @@
         alert('Please select between 3 and 10 cards for recommendations.'); // Show an alert for invalid selection
         }
     });
+
+    document.querySelectorAll('.format').forEach(format => {
+    format.addEventListener('click', function () {
+        // Remove the 'highlighted' class from all formats
+        document.querySelectorAll('.format').forEach(f => {
+            f.classList.remove('highlighted');
+        });
+
+        // Add the 'highlighted' class to the clicked format
+        this.classList.add('highlighted');
+
+        // Capture the selected format
+        const selectedFormat = this.textContent;
+
+        // Send the selected format to the server
+        fetch('/store_format', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ format: selectedFormat }),
+        });
+    });
+});
 
     </script>
 </body>
