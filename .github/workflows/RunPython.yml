@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  api_key: ${{secrets.API_KEY}}
+  api_key: ${{secrets.OPENAI_API_KEY}}
 
 jobs:
   run-python:
