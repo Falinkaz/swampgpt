@@ -1,12 +1,16 @@
-import csv, json, os
+import csv, json, os, time, re, requests
 from flask import Flask, render_template, request, jsonify, session
 from openai import OpenAI
-
 
 application = Flask(__name__)
 API_KEY = os.getenv('OPENAI_API_KEY')
 if not API_KEY:
     raise ValueError("OPENAI_API_KEY is not set in the environment variables")
+
+def remove_special_characters(text):
+    return re.sub(r'【.*?】', '', text)
+def extract_card_names(text):
+    return re.findall(r'\*\*(.*?)\*\*', text)
 
 def get_cards_from_csv(csv_filename):
     cards = []
@@ -15,6 +19,38 @@ def get_cards_from_csv(csv_filename):
         for row in csv_reader:
             cards.append(row['Card Name'])
     return cards
+
+def get_card_image_url(card_name):
+    try:
+        formatted_card_name = requests.utils.quote(card_name)
+        print(f"Requesting Scryfall API with card name: {formatted_card_name}")
+        response = requests.get(f'https://api.scryfall.com/cards/named?exact={formatted_card_name}')
+        print(response)
+        response.raise_for_status()  # Raise an error for bad status codes
+        card_data = response.json()
+
+        # Check for 'card_faces' if the card has multiple faces
+        if 'card_faces' in card_data:
+            image_urls = [face['image_uris']['border_crop'] for face in card_data['card_faces'] if 'image_uris' in face]
+            if image_urls:
+                return image_urls  # Return list of URLs for each face
+            else:
+                print(f"No 'image_uris' found for card faces: {card_name}")
+                return None
+        elif 'image_uris' in card_data:
+            return [card_data['image_uris']['border_crop']]  # Return single URL in a list
+        else:
+            print(f"No 'image_uris' found for card: {card_name}")
+            print(f"Response from Scryfall: {card_data}")
+            return None
+    except requests.RequestException as e:
+        print(f"Request error fetching data for card: {card_name}")
+        print(f"Exception: {e}")
+        return None
+    except Exception as e:
+        print(f"Error fetching data for card: {card_name}")
+        print(f"Exception: {e}")
+        return None
 
 @application.route('/')
 def index():
@@ -27,6 +63,7 @@ def autocomplete():
     csv_filename = 'allcardsv3.csv'
     cards = get_cards_from_csv(csv_filename)
     suggestions = [card for card in cards if query in card.lower()]
+    print("Current Working Directory:", os.getcwd())
     return jsonify(suggestions)
 
 @application.route('/log_selected_options', methods=['POST'])
@@ -36,21 +73,16 @@ def log_selected_options():
     print("selectedOptions:", selectedOptions)
     return '', 204
 
-@application.route('/store_format', methods=['POST'])
-def store_format():
-    data = request.get_json()
-    session['format'] = data.get('format')
-    return '', 204  # No content response
 
 @application.route('/send_gpt', methods=['POST'])
 def send_gpt():
     data = request.get_json()
     selectedOptions = data.get('selectedOptions', [])
-    selectedFormat = session.get('format', 'Default')  # Retrieve the selected format from the session
+    selectedFormat = data.get('selectedFormat', 'Any')  # Retrieve the selected format from the session
     client = OpenAI(api_key=API_KEY)
     thread = client.beta.threads.create()
 
-    messages = [{"role": "user", "content": "Provide recommendations for" + str(selectedFormat) + " format" + "The user has in their deck (may or may not be a complete deck):"}]
+    messages = [{"role": "user", "content": "Provide recommendations of the same colors palette for " + str(selectedFormat) + " format. The user has in their deck (may or may not be a complete deck. DO not enclose these cards in **):"}]
     for card in selectedOptions:
         messages[0]["content"] += f' {card},'  # Appending each card to the content
 
@@ -77,9 +109,16 @@ def send_gpt():
         return("error: Invalid response")  # Return a generic error response
 
     if thread_messages:
+        cleaned_response = str(remove_special_characters(response))
+        print(type(cleaned_response))
+        print(messages)
+        print(selectedFormat)
         print(str(response))
-        print(type((str(response))))
-        return(str(response))  # Return the cards outside the try-except block
+        card_names = extract_card_names(response)
+        print(str(card_names))
+        card_image_urls = [get_card_image_url(card_name) for card_name in card_names]
+        print(str(card_image_urls))
+        return jsonify({"card_image_urls": card_image_urls, "response": cleaned_response})
         
 
 if __name__ == '__main__':
