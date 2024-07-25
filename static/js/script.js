@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (!response.ok) {
                     throw new Error('Network response was not ok.');
                 }
-                return response.json(); // Receive response as a string
+                return response.json();
             })
             .then(data => {
                 // Clear the images container
@@ -119,15 +119,29 @@ document.addEventListener('DOMContentLoaded', function () {
                 while (imagesContainer.firstChild) {
                     imagesContainer.removeChild(imagesContainer.firstChild);
                 }
-                const recommendationsList = document.getElementById('recommendations-list');
-                recommendationsList.innerText = data.response; // Display the received data directly as text
-                data.card_image_urls.forEach(url => {
+            
+                // Check the data structure
+                console.log('Data received from server:', data);
+            
+                // Iterate over the data and create HTML elements
+                data.response_with_images.forEach(item => {
+                    const recommendationItem = document.createElement('div');
+                    recommendationItem.classList.add('recommendation-item');
+            
                     const img = document.createElement('img');
-                    img.src = url;
+                    img.src = item.image_url;
                     img.alt = "Card image";
-                    imagesContainer.appendChild(img);
+                    img.classList.add('recommendation-card');
+            
+                    const recommendationText = document.createElement('div');
+                    recommendationText.classList.add('recommendation-text');
+                    recommendationText.innerHTML = item.recommendation;
+            
+                    recommendationItem.appendChild(img);
+                    recommendationItem.appendChild(recommendationText);
+            
+                    imagesContainer.appendChild(recommendationItem);
                 });
-                recommendationsList.style.display = 'block'; // Ensure the recommendations are visible
             })
             .catch(error => {
                 console.error('Error fetching recommendations:', error);

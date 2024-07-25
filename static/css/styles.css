@@ -94,59 +94,44 @@ body {
     background-color: transparent; /* Electric green background */
     color: #ffffff; /* Black text */
 }
-#recommendations-frame {
-    background-color: rgba(255, 255, 0, 0.6);
-    padding: 20px;
-    width: 90%;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
-    font-family: 'Roboto Mono', monospace;
-    border-radius: 10px;
-    margin-top: 20px; /* Add margin at the top */
-}
-#recommendations-frame h2 {
-    margin-bottom: 15px;
-    color: #333; /* Dark text color */
-    font-size: 18px;
-}
-#recommendations-list {
-    font-size: 16px;
-}
-#get-recommendation-button:disabled {
-    opacity: 0.5 !important; /* look and feel of the GetReco button when it is disabled to give the user a cue (they need to add or delete at least one card to re-enable it) */
-    cursor: not-allowed;
-    background-color: grey;
-}
-#card-images {
-    padding: 20px;
-    width: 90%; /* Set the width to 90% */
-    margin: 20px auto; /* Center the container and add margin at the top and bottom */
-    border-radius: 10px;
+/* Container for card and text pairing */
+.recommendation-item {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center; /* Horizontally center the images */
-    align-items: center; /* Vertically center the images */
+    align-items: center;
+    margin: 10px 0; /* Space between items */
 }
 
-#card-images img {
-    padding: 20px;
-    width: 90%;
-    max-width: 300px;
-    margin: auto; /* Center the images */
-    border-radius: 10px;
-    margin: 6px; /* Add margin to create space between the images */
+/* Style for the card */
+.recommendation-card {
+    flex: 1; /* Take up space proportionally */
+    max-width: 150px; /* Set a max-width for the card */
+    margin-right: 20px; /* Space between card and text */
 }
 
-@media (min-width: 600px) {
-    #card-images {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        padding: 20px;
-        margin: 20px auto; /* Center the container and add margin at the top and bottom */
+/* Style for the recommendation text */
+.recommendation-text {
+    flex: 2; /* Take up more space than the card */
+    max-width: calc(100% - 170px); /* Adjust according to card width and margin */
+}
+
+/* Adjust card and text for different screen sizes */
+@media (max-width: 768px) {
+    .recommendation-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .recommendation-card {
+        margin-right: 0;
+        margin-bottom: 10px; /* Space between card and text when stacked */
+        max-width: 100%; /* Allow card to take full width */
+    }
+
+    .recommendation-text {
+        max-width: 100%;
     }
 }
+
 
 @media (min-width: 768px) {
     #autocomplete-input {

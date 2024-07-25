@@ -52,6 +52,30 @@ def get_card_image_url(card_name):
         print(f"Exception: {e}")
         return None
 
+
+def generate_response_with_images(chatgpt_response):
+    print("ChatGPT Response for Images:", chatgpt_response)  # Print input
+    card_names = extract_card_names(chatgpt_response)
+    print("Extracted Card Names:", card_names)  # Print extracted card names
+    
+    card_recommendations = re.findall(r'(\*\*.*?\*\*.*?)(?=\n|$)', chatgpt_response)
+    print("Card Recommendations:", card_recommendations)  # Print card recommendations
+
+    response_with_images = []
+
+    for card_recommendation in card_recommendations:
+        card_name = extract_card_names(card_recommendation)[0]  # Assuming there's only one card name per recommendation
+        card_image_url = get_card_image_url(card_name)
+        response_with_images.append({
+            'card_name': card_name,
+            'recommendation': card_recommendation,
+            'image_url': card_image_url
+        })
+    
+    print("Response with Images:", response_with_images)  # Print the final result
+    return response_with_images
+
+
 @application.route('/')
 def index():
     cards = []
@@ -118,7 +142,10 @@ def send_gpt():
         print(str(card_names))
         card_image_urls = [get_card_image_url(card_name) for card_name in card_names]
         print(str(card_image_urls))
-        return jsonify({"card_image_urls": card_image_urls, "response": cleaned_response})
+        response_with_images = generate_response_with_images(cleaned_response)
+        print("Response with Images:", response_with_images)
+        print(response_with_images)
+        return jsonify({"response_with_images": response_with_images})
         
 
 if __name__ == '__main__':
