@@ -106,7 +106,7 @@ def send_gpt():
     client = OpenAI(api_key=API_KEY)
     thread = client.beta.threads.create()
 
-    messages = [{"role": "user", "content": "Provide recommendations of the same colors palette for " + str(selectedFormat) + " format. The user has in their deck (may or may not be a complete deck. DO not enclose these cards in **):"}]
+    messages = [{"role": "user", "content": "Provide recommendations of the same colors palette for " + str(selectedFormat) + " format. The user has in their deck (may or may not be a complete deck. These cards only are to never be enclosed in **):"}]
     for card in selectedOptions:
         messages[0]["content"] += f' {card},'  # Appending each card to the content
 
@@ -145,6 +145,7 @@ def send_gpt():
         response_with_images = generate_response_with_images(cleaned_response)
         print("Response with Images:", response_with_images)
         print(response_with_images)
+        print(type(response_with_images))
         return jsonify({"response_with_images": response_with_images})
         
 

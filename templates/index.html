@@ -24,19 +24,30 @@
     </div>
     <!-- This is the Title of the page -->
     <div>
-        <h1 style="color: lightgray; font-family: 'Roboto Mono', monospace; text-align: center; margin: 30px">Welcome to swampGPT - use AI to get ideas for your existing MTG decks</h1>
+        <h1 style="color: black; font-family: 'Roboto Mono', monospace; text-align: center; margin: 30px">SwampGPT - Enter up to 9 cards currently in your deck and select a format (optional) to get new card recommendations</h1>
     </div>
-    <!-- Search Bar -->
-<div style="margin: 40px;">
-    <input type="search" id="autocomplete-input" class="form-control mt-4" placeholder="Add 3 - 9 cards" style="flex-grow: 1; margin-right: 20px;">
+<!-- Container for the search bar and selected cards -->
+<div class="search-and-selected-container">
+     <!-- Search Bar -->
+    <div class="search-bar">
+        <input type="search" id="autocomplete-input" class="form-control mt-4" placeholder="   Enter your cards here   ">
+        <!-- Autocomplete list -->
+            <ul id="suggestions-list" style="list-style-type: none; padding: 0; margin-top: 5px; color: #080808; font-family: 'Roboto Mono', monospace;"></ul>
+    </div>
+        <!-- The selected cards will be listed here -->
+        <div class="selected-options-container">
+            <div class="selected-options-title">Selected Cards</div>
+            <ul id="selected-options-list" style="list-style-type: none; padding: 0;"></ul>
+            <div class="selected-options-footer">Click on any card to remove</div>
+            <button id="get-recommendation-button" class="btn btn-primary mt-2">Get Recommendations</button>
+
+
+        </div>
 </div>
 
-<!-- Suggestions list -->
-<div style="position: relative; margin: 30px;">
-    <ul id="suggestions-list" style="list-style-type: none; padding: 0; margin-top: 5px; color: #FFFFFF; font-family: 'Roboto Mono', monospace;"></ul>
-</div>
-<!-- The frames for the formats -->
-<div id="formats">
+    <!-- <div class="scrollable-list">
+        <h3>Select Format</h3>
+        <ul>
     <div class="format">ANY</div>
     <div class="format">COMMANDER</div>
     <div class="format">DUEL</div>
@@ -55,23 +66,16 @@
     <div class="format">PREDH</div>
     <div class="format">PREMODERN</div>
     <div class="format">VINTAGE</div>
-    <!-- Add more formats as needed -->
-</div>
-<!-- The selected options will be listed here -->
-    <div class="selected-options-container">
-        <div class="selected-options-title">Selected Cards</div>
-        <ul id="selected-options-list" style="list-style-type: none; padding: 0;">
         </ul>
-        <div class="selected-options-footer">Click on any card to remove</div>
-        <button id="get-recommendation-button" class="btn btn-primary mt-2">Get Recommendations</button>
-
-
     </div>
+</div>
+    Add more formats as needed -->
+
+
 
     <!-- Behold the recommendations-frame div -->
     <div id="recommendations-frame" class="electric-recommendations">
-        <h2>Hey there! Add up to 9 cards currently in your deck and select a format (Optional). Your recommendations will appear here. If you liked SwampGPT, consider buying us a ☕️ :) </h2>
-        <div id="recommendations-list"></div>
+                <div id="recommendations-list"></div>
     </div>
     <div id="card-images" class="card-images">
         <!-- Card images will be inserted here -->

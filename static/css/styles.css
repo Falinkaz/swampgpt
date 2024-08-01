@@ -1,35 +1,68 @@
 body {
-        background-image: url('/static/YSyN976.png');
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        background-size: cover;
+        background:rgb(238, 236, 232);
         padding: 40px;
-        margin: 20px;
-        margin-left: 30px;
-        margin-right: 30px;
+        margin: 30px;
         box-sizing: border-box; /* Ensure padding doesn't increase the width of the body */
     }
+
+    .search-and-selected-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        margin: 20px; /* Ensure there's margin around the container */
+        padding: 20px; /* Add padding to ensure content isn't too close to the edges */
+        box-sizing: border-box; /* Include padding and border in the element's width/height */
+        gap: 20px; /* Add some space between items */
+    }    
+
+    .search-bar {
+        flex: 1 1 30%; /* Adjust as needed */
+        min-width: 300px; /* Minimum width for the search bar container */
+        box-sizing: border-box; /* Ensure padding and border are included in the width */
+        margin-top: 2.5%;
+    }
+    
+    #autocomplete-input {
+        width: 100%; /* Takes up the full width of its container */
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        box-sizing: border-box; /* Ensures padding and border are included in the width */
+    }
+    
+    
+    .search-bar input {
+        width: 100%; /* Ensure the input field fills the search bar */
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+    }
+    
     .selected-options-container {
-    background-color: rgba(240, 240, 230, 0.8);
-    color: white;
-    padding: 20px;
-    border-radius: 5px;
-    margin-top: 40px;
-    width: 90%;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 20px; /* Add margin at the bottom */
-    font-family: 'Roboto Mono', monospace;
-    box-sizing: border-box; /* Add box-sizing to include padding and border in the element's total width and height */
-}
-.selected-options-title {
-    font-size: 20px;
-    margin-bottom: 10px;
-}
-.selected-options-footer {
-    font-size: 12px;
-    margin-top: 10px;
-}
+        width: 600px; /* Set a fixed width for the selected cards container */
+        max-height: 500px; /* Maximum height for the selected cards container */
+        overflow-y: auto; /* Add vertical scrolling if content exceeds height */
+        background-color: rgba(240, 240, 230, 0.8);
+        color: black;
+        padding: 20px;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+
+    .selected-options-title {
+        font-size: 20px;
+        margin-bottom: 10px;
+        color: black;
+    }
+
+    .selected-options-footer {
+        font-size: 12px;
+        margin-top: 10px;
+        color: black;
+    }
+
 #loader-container {
     display: none;
     position: fixed;
@@ -67,33 +100,45 @@ body {
     color: #ffffff; /* White text on hover */
 }
 
-.format-container {
-    display: flex;
-    flex-wrap: wrap;
+
+
+
+
+
+/* .scrollable-list {
+    background: white;
     padding: 20px;
-    margin-left: auto;
-    margin-right: auto;
-    box-sizing: border-box; /* Include padding in the box's total width and height */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 300px; 
+    max-height: 400px; 
+    overflow-y: auto; 
 }
 
+.scrollable-list h3 {
+    margin-top: 0;
+    text-align: center;
+}
 
-.format {
-    border: 1px solid #000;
+.scrollable-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.scrollable-list li {
     padding: 10px;
-    margin: 5px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 5px 0;
+    background: #f4f4f4;
+    border-radius: 5px;
     cursor: pointer;
-    background-color: #FFA500; /* Bright orange background */
-    color: #FFFFFF; /* White text */
-    text-align: center; /* Center the text */
-    flex: 0 0 auto; /* Prevent the boxes from growing beyond their content size */
+    transition: background 0.3s ease;
 }
 
-.format.highlighted {
-    background-color: transparent; /* Electric green background */
-    color: #ffffff; /* Black text */
-}
+.scrollable-list li:hover {
+    background: #ddd;
+} */
+
 /* Container for card and text pairing */
 .recommendation-item {
     display: flex;
@@ -130,12 +175,21 @@ body {
     .recommendation-text {
         max-width: 100%;
     }
+
+    .search-and-select-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .scrollable-list {
+        width: 100%; /* Full width on mobile */
+    }
 }
 
 
 @media (min-width: 768px) {
     #autocomplete-input {
-        width: auto;
+        width: 90%;
         margin-right: 20px;
     }
     #format {
