@@ -30,47 +30,48 @@
 <div class="search-and-selected-container">
      <!-- Search Bar -->
     <div class="search-bar">
-        <input type="search" id="autocomplete-input" class="form-control mt-4" placeholder="   Enter your cards here   ">
+        <input type="search" id="autocomplete-input" class="form-control mt-4" placeholder="Enter the cards in your deck here">
         <!-- Autocomplete list -->
             <ul id="suggestions-list" style="list-style-type: none; padding: 0; margin-top: 5px; color: #080808; font-family: 'Roboto Mono', monospace;"></ul>
     </div>
-        <!-- The selected cards will be listed here -->
+        <!-- The selected cards will be listed here --> 
         <div class="selected-options-container">
-            <div class="selected-options-title">Selected Cards</div>
+            <div class="selected-options-title">Cards in your deck:</div>
             <ul id="selected-options-list" style="list-style-type: none; padding: 0;"></ul>
             <div class="selected-options-footer">Click on any card to remove</div>
-            <button id="get-recommendation-button" class="btn btn-primary mt-2">Get Recommendations</button>
+           
 
 
         </div>
+        <!-- Format Selector --> 
+        <div class="format-selector">
+            <label for="format-select">Select a Format:</label>
+            <select id="format-select" class="form-control">
+                <option value="any">Any Format</option>
+                <option value="commander">Commander</option>
+                <option value="duel">Duel</option>
+                <option value="explorer">Explorer</option>
+                <option value="gladiator">Gladiator</option>
+                <option value="historic">Historic</option>
+                <option value="historicbrawl">HistoricBrawl</option>
+                <option value="legacy">Legacy</option>
+                <option value="modern">Modern</option>
+                <option value="standard">Standard</option>
+                <option value="oathbreaker">Oathbreaker</option>
+                <option value="pauper">Pauper</option>
+                <option value="pauperCommander">PauperCommander</option>
+                <option value="penny">Penny</option>
+                <option value="pioneer">Pioneer</option>
+                <option value="predh">Predh</option>
+                <option value="premodern">Premodern</option>
+                <option value="vintage">Vintage</option>
+            </select>
+        </div>
+        <button id="get-recommendation-button" class="btn btn-primary mt-2">Get Recommendations</button>
 </div>
 
-    <!-- <div class="scrollable-list">
-        <h3>Select Format</h3>
-        <ul>
-    <div class="format">ANY</div>
-    <div class="format">COMMANDER</div>
-    <div class="format">DUEL</div>
-    <div class="format">EXPLORER</div>
-    <div class="format">GLADIATOR</div>
-    <div class="format">HISTORIC</div>
-    <div class="format">HISTORICBRAWL</div>
-    <div class="format">LEGACY</div>
-    <div class="format">MODERN</div>
-    <div class="format">STANDARD</div>
-    <div class="format">OATHBREAKER</div>
-    <div class="format">PAUPER</div>
-    <div class="format">PAUPERCOMMANDER</div>
-    <div class="format">PENNY</div>
-    <div class="format">PIONEER</div>
-    <div class="format">PREDH</div>
-    <div class="format">PREMODERN</div>
-    <div class="format">VINTAGE</div>
-        </ul>
-    </div>
-</div>
-    Add more formats as needed -->
-
+    
+    
 
 
     <!-- Behold the recommendations-frame div -->
@@ -82,7 +83,7 @@
     </div>
     <div class="row justify-content-center">
         <div class="col-12 text-center">
-            <a href="mailto:swampgpt@gmail.com" style="color: white; text-decoration: none;">swampgpt@gmail.com</a>
+            <a href="mailto:swampgpt@gmail.com" style="color: black; text-decoration: none;">swampgpt@gmail.com</a>
         </div>
     </div>
     <!-- Bootstrap scripts -->

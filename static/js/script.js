@@ -156,18 +156,26 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    document.querySelectorAll('.format').forEach(format => {
-        format.addEventListener('click', function () {
-            // Remove the 'highlighted' class from all formats
-            document.querySelectorAll('.format').forEach(f => {
-                f.classList.remove('highlighted');
-            });
+        // Get references to elements
+    const formatSelect = document.getElementById('format-select');
 
-            // Add the 'highlighted' class to the clicked format
-            this.classList.add('highlighted');
+    // Add event listener to the dropdown menu
+    formatSelect.addEventListener('change', function () {
+        // Get the selected value
+        selectedFormat = this.value;
 
-            // Capture the selected format
-            selectedFormat = this.textContent;
+        // Log the selected format
+        console.log('Selected format:', selectedFormat);
+
+        // Optional: Remove previous highlighting
+        document.querySelectorAll('#format-select option').forEach(option => {
+            option.classList.remove('highlighted'); // Note: This might not be necessary for a <select> element
         });
+
+        // Optional: Add highlighting (if applicable to <select>)
+        this.querySelector(`option[value="${selectedFormat}"]`).classList.add('highlighted');
+
+        // You can also perform additional actions based on the selected format here
     });
+
 });

@@ -1,5 +1,5 @@
 body {
-        background:rgb(238, 236, 232);
+        background:rgb(245, 244, 242);
         padding: 40px;
         margin: 30px;
         box-sizing: border-box; /* Ensure padding doesn't increase the width of the body */
@@ -7,20 +7,22 @@ body {
 
     .search-and-selected-container {
         display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        margin: 20px; /* Ensure there's margin around the container */
-        padding: 20px; /* Add padding to ensure content isn't too close to the edges */
-        box-sizing: border-box; /* Include padding and border in the element's width/height */
-        gap: 20px; /* Add some space between items */
+        flex-direction: column; /* Stack children vertically */
+        align-items: center; /* Center children horizontally */
+        justify-content: center; /* Center children vertically */
+        width: 80%; /* Adjust the width as needed */
+        max-width: 800px; /* Maximum width for larger screens */
+        margin: 0 auto; /* Center horizontally */
+        padding: 20px; /* Padding inside the box */
+        background-color: #fff; /* Background color of the box */
+        border-radius: 8px; /* Rounded corners for the box */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for a subtle 3D effect */
+        box-sizing: border-box; /* Ensure padding and border are included in the element's width/height */
     }    
 
     .search-bar {
-        flex: 1 1 30%; /* Adjust as needed */
-        min-width: 300px; /* Minimum width for the search bar container */
-        box-sizing: border-box; /* Ensure padding and border are included in the width */
-        margin-top: 2.5%;
+        width: 100%; /* Full width of the box */
+        margin-bottom: 20px; /* Space below the search bar */
     }
     
     #autocomplete-input {
@@ -44,10 +46,10 @@ body {
         width: 600px; /* Set a fixed width for the selected cards container */
         max-height: 500px; /* Maximum height for the selected cards container */
         overflow-y: auto; /* Add vertical scrolling if content exceeds height */
-        background-color: rgba(240, 240, 230, 0.8);
-        color: black;
+        background-color: white;
+        border-color: black;
         padding: 20px;
-        border-radius: 5px;
+        border-radius: 2px;
         box-sizing: border-box;
     }
 
@@ -62,6 +64,21 @@ body {
         margin-top: 10px;
         color: black;
     }
+
+    .format-selector {
+        margin-top: 20px; /* Adjust spacing as needed */
+        width: 100%; /* Full width of the container */
+    }
+    
+    .form-control {
+        width: 100%; /* Full width for select element */
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+    }
+    
+
 
 #loader-container {
     display: none;
