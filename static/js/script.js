@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(response => response.json())
                 .then(data => {
                     suggestionsList.innerHTML = '';
-                    data.slice(0, 4).forEach(suggestion => { // Limit the suggestions to 4
+                    data.slice(0, 4).forEach(suggestion => { // Limit the suggestions to 5
                         const li = document.createElement('li');
                         li.textContent = suggestion;
                         li.style.cursor = 'pointer';
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function () {
             getRecommendationButton.disabled = true;
             getRecommendationButton.classList.add('disabled');
             showLoader();
-
+    
             fetch('/send_gpt', {
                 method: 'POST',
                 headers: {
@@ -114,35 +114,59 @@ document.addEventListener('DOMContentLoaded', function () {
                 return response.json();
             })
             .then(data => {
-                // Clear the images container
+                   
+                // Display Start Section
+                const startContainer = document.getElementById('start-section');
+                startContainer.textContent = data.start_section;
+
+    
+                // Clear the recommendations and images container
+                const recommendationsList = document.getElementById('recommendations-list');
                 const imagesContainer = document.getElementById('card-images');
+                
+                while (recommendationsList.firstChild) {
+                    recommendationsList.removeChild(recommendationsList.firstChild);
+                }
+                
                 while (imagesContainer.firstChild) {
                     imagesContainer.removeChild(imagesContainer.firstChild);
                 }
-            
+                
                 // Check the data structure
                 console.log('Data received from server:', data);
-            
-                // Iterate over the data and create HTML elements
+
+                // Create a list of recommendations
                 data.response_with_images.forEach(item => {
+                    // Create a recommendation item
                     const recommendationItem = document.createElement('div');
                     recommendationItem.classList.add('recommendation-item');
-            
-                    const img = document.createElement('img');
-                    img.src = item.image_url;
-                    img.alt = "Card image";
-                    img.classList.add('recommendation-card');
-            
-                    const recommendationText = document.createElement('div');
-                    recommendationText.classList.add('recommendation-text');
-                    recommendationText.innerHTML = item.recommendation;
-            
-                    recommendationItem.appendChild(img);
-                    recommendationItem.appendChild(recommendationText);
-            
-                    imagesContainer.appendChild(recommendationItem);
-                });
-            })
+
+                // Create an image element
+                const img = document.createElement('img');
+                img.src = item.image_url[0]; // Assuming image_url is an array
+                img.alt = item.card_name;
+                img.classList.add('recommendation-card');
+                
+                // Create a text element for the recommendation
+                const recommendationText = document.createElement('div');
+                recommendationText.classList.add('recommendation-text');
+                recommendationText.innerHTML = item.recommendation;
+
+                // Append the image and text to the recommendation item
+                recommendationItem.appendChild(img);
+                recommendationItem.appendChild(recommendationText);
+
+                // Append the recommendation item to the recommendations list
+                recommendationsList.appendChild(recommendationItem);
+        });
+                // Update outro section
+                const outroSection = document.getElementById('outro-section');
+                outroSection.innerHTML = data.outro_section; // Add outro content
+
+                // Update start section if needed
+                const startSection = document.getElementById('start-section');
+                startSection.innerHTML = data.start_section; // Add start content
+})
             .catch(error => {
                 console.error('Error fetching recommendations:', error);
                 // Handle errors here
@@ -155,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function () {
             alert('Please select between 3 and 10 cards for recommendations.'); // Show an alert for invalid selection
         }
     });
-
+    
         // Get references to elements
     const formatSelect = document.getElementById('format-select');
 
@@ -167,15 +191,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Log the selected format
         console.log('Selected format:', selectedFormat);
 
-        // Optional: Remove previous highlighting
-        document.querySelectorAll('#format-select option').forEach(option => {
-            option.classList.remove('highlighted'); // Note: This might not be necessary for a <select> element
-        });
-
-        // Optional: Add highlighting (if applicable to <select>)
-        this.querySelector(`option[value="${selectedFormat}"]`).classList.add('highlighted');
-
-        // You can also perform additional actions based on the selected format here
+    
     });
 
 });

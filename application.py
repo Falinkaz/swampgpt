@@ -53,12 +53,12 @@ def get_card_image_url(card_name):
         return None
 
 
-def generate_response_with_images(chatgpt_response):
-    print("ChatGPT Response for Images:", chatgpt_response)  # Print input
-    card_names = extract_card_names(chatgpt_response)
+def generate_response_with_images(card_recos_section):
+    print("ChatGPT Response for Images:", card_recos_section)  # Print input
+    card_names = extract_card_names(card_recos_section)
     print("Extracted Card Names:", card_names)  # Print extracted card names
     
-    card_recommendations = re.findall(r'(\*\*.*?\*\*.*?)(?=\n|$)', chatgpt_response)
+    card_recommendations = re.findall(r'(\*\*.*?\*\*.*?)(?=\n|$)', card_recos_section)
     print("Card Recommendations:", card_recommendations)  # Print card recommendations
 
     response_with_images = []
@@ -131,10 +131,9 @@ def send_gpt():
         response = (thread_messages.data[0].content[0].text.value)
     except Exception as e:
         return("error: Invalid response")  # Return a generic error response
-
+    response_with_images = []  # Initialize the variable
     if thread_messages:
         cleaned_response = str(remove_special_characters(response))
-        print(type(cleaned_response))
         print(messages)
         print(selectedFormat)
         print(str(response))
@@ -142,11 +141,18 @@ def send_gpt():
         print(str(card_names))
         card_image_urls = [get_card_image_url(card_name) for card_name in card_names]
         print(str(card_image_urls))
-        response_with_images = generate_response_with_images(cleaned_response)
-        print("Response with Images:", response_with_images)
-        print(response_with_images)
         print(type(response_with_images))
-        return jsonify({"response_with_images": response_with_images})
+        # Split response using new section titles
+        start_section = cleaned_response.split('+++Card Recos+++')[0].replace('+++Start+++', '').strip()
+        card_recos_section = cleaned_response.split('+++Card Recos+++')[1].split('+++Outro+++')[0].strip()
+        outro_section = cleaned_response.split('+++Outro+++')[1].strip()
+        print("Outro Section:", outro_section)
+        response_with_images = generate_response_with_images(card_recos_section)
+        return jsonify({
+                    "start_section": start_section,
+                    "response_with_images": response_with_images,
+                    "outro_section": outro_section
+                    })
         
 
 if __name__ == '__main__':

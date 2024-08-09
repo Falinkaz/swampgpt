@@ -1,7 +1,8 @@
 body {
         background:rgb(245, 244, 242);
-        padding: 40px;
-        margin: 30px;
+        width: 82% !important;
+        padding: 6%;
+        margin: 0%;
         box-sizing: border-box; /* Ensure padding doesn't increase the width of the body */
     }
 
@@ -116,45 +117,6 @@ body {
     background-color: #0056b3; /* Darker blue on hover */
     color: #ffffff; /* White text on hover */
 }
-
-
-
-
-
-
-/* .scrollable-list {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 300px; 
-    max-height: 400px; 
-    overflow-y: auto; 
-}
-
-.scrollable-list h3 {
-    margin-top: 0;
-    text-align: center;
-}
-
-.scrollable-list ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.scrollable-list li {
-    padding: 10px;
-    margin: 5px 0;
-    background: #f4f4f4;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.scrollable-list li:hover {
-    background: #ddd;
-} */
 
 /* Container for card and text pairing */
 .recommendation-item {
